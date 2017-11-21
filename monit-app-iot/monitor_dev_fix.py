@@ -20,51 +20,64 @@ class ServerProtocol(DatagramProtocol):
     def datagramReceived(self, data, (host, port)):
         handler = Handler(self.transport, host, port)
         result = json.loads(data)
-        d = threads.deferToThread(handler.handleMessage, result[0])
+        args = result.get('type') if result.get('type') else result.get('hostname')
+        d = threads.deferToThread(handler.handleMessage, args)
         db = sqlite3.connect("monitor.db")
         cursor = db.cursor()
 
-        if result[0] == 1:
+        if result.get('type') == 1:
             cursor.execute('''INSERT INTO resource(host,date,time,cpu,memory_avail,memory_used,swap_free)
             VALUES (?,?,?,?,?,?,?);''', (
-            result[1], str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")), result[2], result[3], result[4],
-            result[5]))
+                result.get('mac'), str(time.strftime("%d-%m-%Y")),
+                str(time.strftime("%H:%M:%S")), result.get('cpu'), result.get('memory'),
+                result.get('usedmem'),
+                result.get('swap')))
             print "resource has been inserted to database"
-            print "result %r " % (result)
-        elif result[0] == 2:
-            cursor.execute('''INSERT INTO network(host,date,time,byte_sent,byte_receive,packet_sent,packet_receive)
-                            VALUES (?,?,?,?,?,?,?);''', (
-                result[1], str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")), result[2], result[3],
-                result[4], result[5]))
+            print "result %r " % result
+        elif result.get('type') == 2:
+            cursor.execute(
+                '''INSERT INTO network(host,date,time,byte_sent,byte_receive,packet_sent,packet_receive)
+                VALUES (?,?,?,?,?,?,?);''', (
+                    result.get('mac'), str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")),
+                    result.get('cpu'),
+                    result.get('memory'),
+                    result.get('usedmem'), result.get('swap'))
+            )
             print "network has been inserted to database"
             print "result %r " % (result)
-        elif result[0] == 3:
+        elif result.get('type') == 3:
             cursor.execute('''INSERT INTO availability(host,date,time,status)
                                             VALUES (?,?,?,?);''',
-                           (result[1], str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")), result[3]))
+                           (result.get('mac'), str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")),
+                            result.get('memory')))
             print "this is availability"
             print "result %r " % (result)
             print type(result)
-        elif result[0] == 4:
+        elif result.get('type') == 4:
             cursor.execute('''INSERT INTO disk(host,date,time,disk_used,disk_free,read_bytes,write_bytes)
                             VALUES (?,?,?,?,?,?,?);''', (
-                result[1], str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")), result[2], result[3],
-                result[4], result[5]))
+                result.get('mac'), str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")), result.get('cpu'), result.get('memory'),
+                result.get('usedmem'), result.get('swap')))
             print "disk has been inserted to database"
-            print "result %r " % (result)
+            print "result %r " % result
 
         else:
-            print "received from host %r , %s:%d" % (result[1], host, port)
-            t = (result[1],)  # s = (result[1],)
+            print "received from host %r , %s:%d" % (result.get('mac'), host, port)
+            t = (result['mac'],)  # s = (result[1],)
             query = cursor.execute('''SELECT * FROM Host WHERE host=?''', t)
             count = len(query.fetchall())
 
             if count == 0:
-                cursor.execute('''INSERT INTO host(hostname,host,status,phase) VALUES (?,?,?,?);''',
-                               (result[0], result[1], result[2], result[3]))
+                cursor.execute(
+                    '''INSERT INTO host(hostname,host,status,phase) VALUES (?,?,?,?);''',
+                    (result['hostname'], result['mac'], result['status'], result['phase'])
+                )
                 print "insert"
             else:
-                cursor.execute('''UPDATE host SET status = ? WHERE Host = ?;''', (result[2], result[1]))
+                cursor.execute(
+                    '''UPDATE host SET status = ? WHERE Host = ?;''',
+                    (result['status'], result['hostname'])
+                )
                 print "update"
             print "host has been recorded"
         db.commit()

@@ -16,15 +16,24 @@ class ClientProtocol(DatagramProtocol):
             avai = "Up"
         else:
             avai = "Down"
-        status = (hostname, mac, avai, "Off")
-        result = json.dumps(status)
+        data = {
+            'hostname': hostname,
+            'mac': mac,
+            'status': avai,
+            'phase': 'Off'
+        }
+        result = json.dumps(data)
         self.transport.write(result)
 
     def doStop(self):
         hostname = gethostname()
         mac = getmac()
-        status = (hostname, mac, "Down")
-        result = json.dumps(status)
+        data = {
+            'hostname': hostname,
+            'mac': mac,
+            'status': "Down"
+        }
+        result = json.dumps(data)
         self.transport.write(result)
         print "Client Stopped"
 
@@ -100,8 +109,7 @@ def getResource():
     memory = psutil.virtual_memory().available
     usedmem = psutil.virtual_memory().used
     swap = psutil.swap_memory().free
-    res = (_type, getmac(), cpu, memory, usedmem, swap)
-    res_2 = {
+    res = {
         'type': _type,
         'mac': get_mac(),
         'cpu': cpu,
