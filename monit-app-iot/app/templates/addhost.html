@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="static/css/normalize.css">
+    <link rel="stylesheet" href="static/css/skeleton.css">
+    <meta charset="UTF-8">
+    <title>Add Host</title>
+</head>
+<body>
+    <div class="container">
+        <ul>
+           <li><a href="{{ url_for('index') }}">Home</a></li>
+           <li><a href="{{ url_for('monitor') }}">Monitor</a></li>
+           <li><a href="{{ url_for('history') }}">History</a></li>
+
+       </ul>
+        <h3>Add Host to Monitor</h3>
+        <form action="{{ url_for('add_data') }}" method="post">
+            <label for="hostData">Host Address</label>
+            <input type="text" name="hostData" class="u-full-width" placeholder="192.162.1.1" id="hostData">
+            <input class="button-primary" value="Submit"  type="submit">
+        </form>
+    </div>
+</body>
+</html>

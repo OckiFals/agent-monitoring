@@ -1,0 +1,56 @@
+<html>
+  <head>
+      <link rel="stylesheet" href="static/css/normalize.css">
+      <link rel="stylesheet" href="static/css/skeleton.css">
+      <title>{{ title }} - Monitoring</title>
+  </head>
+  <body>
+        <div class="container">
+       <ul>
+           <li><a href="{{ url_for('index') }}">Home</a></li>
+           <li><a href="{{ url_for('history') }}">History</a></li>
+
+       </ul>
+      <h3>List Device </h3>
+        <div align="right">
+            <form action="{{ url_for('monitor') }}" method="post">
+                <button type="submit"  class="button">Monitor All</button>
+                <input type="hidden" value="All" name="host">
+            </form>
+        </div>
+
+        <table class="two column" border="0.5">
+            <thead>
+            <tr>
+                <td>Hostname</td>
+                <td>Host</td>
+                <td>Status</td>
+                <td>Accept for Monitor</td>
+                <td>Decline</td>
+            </tr>
+            </thead>
+            {% for row in rows %}
+             <tr>
+                 <td>{{row["hostname"]}}</td>
+                 <td>{{row["host"]}}</td>
+                 <td>{{row["status"]}}</td>
+
+                 <td>
+                     <form action="{{ url_for('monitor') }}" method="post">
+                         <button type="submit" class="button">Monitor</button>
+                         <input type="hidden" value="{{row['host']}}" name="host">
+                     </form>
+                 </td>
+                 <td>
+                     <form action="{{ url_for('delete_host') }}" method="post">
+                         <button type="submit" class="button">Delete Host</button>
+                         <input type="hidden" value="{{row['host']}}" name="host">
+                     </form>
+                 </td>
+             </tr>
+            {% endfor %}
+        </table>
+        </div>
+    </h3>
+  </body>
+</html>

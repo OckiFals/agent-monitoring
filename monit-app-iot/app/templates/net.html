@@ -1,0 +1,163 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/skeleton.css') }}">
+    <meta charset="UTF-8">
+    <title>Network</title>
+    <script type="text/javascript">
+	window.onload = function() {
+	    var chart = new CanvasJS.Chart("chartContainer", {
+            title: {
+                text: "{{title}}",
+                fontSize: 30
+            },
+            animationEnabled: true,
+            axisX: {
+                gridColor: "Silver",
+                tickColor: "silver"
+            },
+            toolTip: {
+                shared: true
+            },
+            theme: "theme2",
+            axisY: {
+                gridColor: "Silver",
+                tickColor: "silver"
+            },
+            legend: {
+                verticalAlign: "center",
+                horizontalAlign: "right"
+            },
+            data: [
+            {
+                type: "line",
+                showInLegend: true,
+                lineThickness: 2,
+                name: "{{cat[1]}}",
+                markerType: "square",
+                color: "#F08080",
+                dataPoints: [
+                {% for i in range(0, length): %}
+                  { x: {{i+1}}, y:
+                        {% if category=='1' %}
+                            {{rows[i].byte_receive}}
+                        {% elif category=='2' %}
+                            {{rows[i].packet_receive}}
+                        {% endif %}
+                   },
+                {% endfor %}
+                ]
+            },
+            {
+                type: "line",
+                showInLegend: true,
+                name: "{{cat[0]}}",
+                color: "#20B2AA",
+                lineThickness: 2,
+
+                dataPoints: [
+                {% for i in range(0, length): %}
+                  { x: {{i+1}}, y:
+                        {% if category=='1' %}
+                            {{rows[i].byte_sent}}
+                        {% elif category=='2' %}
+                            {{rows[i].packet_sent}}
+                        {% endif %}
+                   },
+                {% endfor %}
+                ]
+            }
+            ],
+            legend: {
+                cursor: "pointer",
+                itemclick: function (e) {
+                    if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+                        e.dataSeries.visible = false;
+                    }
+                    else {
+                        e.dataSeries.visible = true;
+                    }
+                    chart.render();
+                }
+            }
+        });
+		chart.render();
+	}
+	</script>
+	<script src="{{url_for('static', filename='js/canvasjs.min.js')}}"></script>
+</head>
+<body>
+    <div class="container">
+        <ul>
+           <li><a href="{{ url_for('index') }}">Home</a></li>
+           <li><a href="{{ url_for('history') }}">History</a></li>
+
+       </ul>
+        <div>
+            <div>
+                <label for="host">Host Address</label>
+                <select class="u-full-width" id="host" name="host">
+                  {% for o in host_list %}
+                  <option value="{{ o.id}}">{{ o.host }}</option>
+                  {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="monitype">Monitoring Category</label>
+                  <select class="u-full-width" id="monitype" name="monitype">
+                    <option value="1">Byte Traffic</option>
+                    <option value="2">Packet Traffic</option>
+                  </select>
+            </div>
+            <div>
+                <input class="button-primary two column" value="Filter" type="submit" id="filter">
+            </div>
+        </div>
+        <!--
+    <table class="u-full-width">
+        <thead bgcolor="yellow">
+            <td>Host</td>
+            <td>Date</td>
+            <td>Time</td>
+            <td>Byte Sent </td>
+            <td>Byte Receive</td>
+            <td>Packet Sent</td>
+            <td>Packet Receive</td>
+        </thead>
+        {% for row in rows %}
+        <tbody>
+            <tr>
+                <td>{{row["host"]}}</td>
+                <td>{{row["date"]}}</td>
+                <td>{{row["time"]}}</td>
+                <td>{{row["byte_sent"]}}</td>
+                <td>{{row["byte_receive"]}}</td>
+                <td>{{row["packet_sent"]}}</td>
+                <td>{{row["packet_receive"]}}</td>
+            </tr>
+        </tbody>
+        {% endfor %}
+    </table>
+    -->
+        <div id="chartContainer" class="two column" style="height: 400px; width: 100%;"></div>
+        <div class="two column">
+            <a class="button button-primary" href="{{ url_for('history') }}"> Back To Monitor</a>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+    <script>
+        $(document).ready(function(){
+          $('#filter').click(function(){
+            var url = "http://localhost:5000/net/"+$("#host").val()+"/"+$("#monitype").val()
+            location.href = url
+          });
+        });
+    </script>
+    <script>
+        var host_id = {{host_id}}
+        var category = {{category}}
+        $("#host > [value=" + host_id + "]").attr("selected", "true");
+        $("#monitype > [value=" + category + "]").attr("selected", "true");
+    </script>
+</body>
+</html>

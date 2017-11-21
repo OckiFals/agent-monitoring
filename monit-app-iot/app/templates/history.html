@@ -1,0 +1,24 @@
+<html>
+  <head>
+      <link rel="stylesheet" href="static/css/normalize.css">
+      <link rel="stylesheet" href="static/css/skeleton.css">
+      <title>{{ title }} - Monitoring</title>
+  </head>
+  <body>
+  <div class="container">
+   <ul>
+      <li><a href="{{ url_for('index') }}">Home</a></li>
+      <li><a href="{{ url_for('history') }}">History</a></li>
+    </ul>
+      <h1>Hello, {{ user.nickname }}!</h1>
+      <h1>Monitoring History </h1>
+	<h3><ol>
+        <a href="{{ url_for('getres') }}">[1].Resource</a>
+        <a href="{{ url_for('getnet') }}">[2].Network</a>
+        <a href="{{ url_for('getstatus') }}">[3].Availability</a>
+        <a href="{{ url_for('getdisk') }}">[4].Disk</a>
+        </ol>
+    </h3>
+  </div>
+  </body>
+</html>

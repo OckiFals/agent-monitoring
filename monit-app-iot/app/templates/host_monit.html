@@ -1,0 +1,83 @@
+<html>
+<head>
+    <link rel="stylesheet" href="static/css/normalize.css">
+    <link rel="stylesheet" href="static/css/skeleton.css">
+    <meta charset="UTF-8">
+    <title>Resource</title>
+</head>
+<body>
+    <!-- Resource -->
+    <div class="container">
+    <table class="u-full-width">
+        <thead bgcolor="yellow">
+        <tr>
+            <td>Host</td>
+            <td>Date</td>
+            <td>Time</td>
+            <td>CPU </td>
+            <td>Memory Available</td>
+            <td>Memory Used</td>
+            <td>Swap Free</td>
+        </tr>
+        </thead>
+        {% for row in rows %}
+            <tr>
+                <td>{{row["host"]}}</td>
+                <td>{{row["date"]}}</td>
+                <td>{{row["time"]}}</td>
+                <td>{{row["cpu"]}}</td>
+                <td>{{row["memory_avail"]}}</td>
+                <td>{{row["memory_used"]}}</td>
+                <td>{{row["swap_free"]}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    </div>
+<!-- Network -->
+    <div class="container">
+        <table class="u-full-width">
+            <thead bgcolor="yellow">
+                <td>Host</td>
+                <td>Date</td>
+                <td>Time</td>
+                <td>Byte Sent </td>
+                <td>Byte Receive</td>
+                <td>Packet Sent</td>
+                <td>Packet Receive</td>
+            </thead>
+            {% for row in rows2 %}
+            <tbody>
+                <tr>
+                    <td>{{row["host"]}}</td>
+                    <td>{{row["date"]}}</td>
+                    <td>{{row["time"]}}</td>
+                    <td>{{row["byte_sent"]}}</td>
+                    <td>{{row["byte_receive"]}}</td>
+                    <td>{{row["packet_sent"]}}</td>
+                    <td>{{row["packet_receive"]}}</td>
+                </tr>
+            </tbody>
+            {% endfor %}
+        </table>
+    </div>
+<!-- Availability -->
+     <div class="container">
+        <table class="u-full-width">
+            <thead bgcolor="yellow">
+                <td>Host</td>
+                <td>Date</td>
+                <td>Time</td>
+                <td>Status </td>
+            </thead>
+            {% for row in rows3 %}
+                <tr>
+                    <td>{{row["host"]}}</td>
+                    <td>{{row["date"]}}</td>
+                    <td>{{row["time"]}}</td>
+                    <td>{{row["status"]}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+     </div>
+</body>
+</html>

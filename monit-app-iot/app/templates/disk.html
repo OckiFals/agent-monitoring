@@ -1,0 +1,41 @@
+<html>
+<head>
+    <link rel="stylesheet" href="static/css/normalize.css">
+    <link rel="stylesheet" href="static/css/skeleton.css">
+    <meta charset="UTF-8">
+    <title>Available</title>
+</head>
+<body>
+    <div class="container">
+        <ul>
+           <li><a href="{{ url_for('index') }}">Home</a></li>
+           <li><a href="{{ url_for('history') }}">History</a></li>
+
+       </ul>
+    <table class="u-full-width">
+        <thead bgcolor="yellow">
+            <td>Host</td>
+            <td>Date</td>
+            <td>Time</td>
+            <td>Disk Used </td>
+            <td>Disk Free </td>
+            <td>Read Bytes </td>
+            <td>Write Bytes </td>
+        </thead>
+        {% for row in rows %}
+            <tr>
+                <td>{{row["host"]}}</td>
+                <td>{{row["date"]}}</td>
+                <td>{{row["time"]}}</td>
+                <td>{{row["disk_used"]}}</td>
+                <td>{{row["disk_free"]}}</td>
+                <td>{{row["read_bytes"]}}</td>
+                <td>{{row["write_bytes"]}}</td>
+            </tr>
+        {% endfor %}
+    </table>
+        <a class="button button-primary" href="{{ url_for('history') }}"> Back To Monitor</a>
+    </div>
+
+</body>
+</html>

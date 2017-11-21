@@ -1,0 +1,37 @@
+Komponen Program:
+Python
+Framework Twisted
+SQLite
+Flask
+
+Proses Instalasi:
+1.Manager
+Requirement Manager : 
+sudo apt-get install python-dev
+sudo apt-get install python-pip
+Flask : 
+sudo pip install virtualenv
+sudo apt-get install python-virtualenv
+$ cd monit-app-iot
+$ virtualenv venv
+pip install Flask
+mkdir monit-app-iot
+Copy isi seluruh direktori ke direktori monit-app-iot
+Aktifkan dengan perintah source venv/bin/activate
+Jalankan file run.py
+apt-get Install flask-sqlalchmey
+pip install flask-sqlalchemy
+
+Instal Sqlite: sudo apt-get install sqlite3 libsqlite3-dev
+Instal Sqlite Browser: sudo apt-get install sqlitebrowser
+
+Twisted:
+sudo apt-get update
+sudo apt-get install python-twisted
+
+Requirement Agent:
+sudo apt-get install python-dev
+sudo apt-get install python-pip
+pip install psutil
+Jalankan Program Agent
+

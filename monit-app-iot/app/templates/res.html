@@ -1,0 +1,115 @@
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/skeleton.css') }}">
+    <meta charset="UTF-8">
+    <title>Resource</title>
+    <script type="text/javascript">
+	window.onload = function() {
+		var chart = new CanvasJS.Chart("chartContainer", {
+			title: {
+				text: "{{title}}"
+			},
+			animationEnabled: true,
+			data: [{
+				type: "line",
+				dataPoints: [
+				{% for i in range(0, length): %}
+				  { x: {{i+1}}, y:
+				        {% if category=='1' %}
+                            {{rows[i].cpu}}
+                        {% elif category=='2' %}
+                            {{rows[i].memory_avail}}
+                        {% elif category=='3' %}
+                            {{rows[i].memory_used}}
+                        {% else %}
+                            {{rows[i].swap_free}}
+                        {% endif %}
+				   },
+				{% endfor %}
+				]
+			}]
+		});
+		chart.render();
+	}
+	</script>
+	<script src="{{url_for('static', filename='js/canvasjs.min.js')}}"></script>
+</head>
+<body>
+    <div class="container">
+        <ul>
+           <li><a href="{{ url_for('index') }}">Home</a></li>
+           <li><a href="{{ url_for('history') }}">History</a></li>
+
+       </ul>
+        <div>
+            <div>
+                <label for="host">Host Address</label>
+                <select class="u-full-width" id="host" name="host">
+                  {% for o in host_list %}
+                  <option value="{{ o.id}}">{{ o.host }}</option>
+                  {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="monitype">Monitoring Category</label>
+                  <select class="u-full-width" id="monitype" name="monitype">
+                    <option value="1">CPU</option>
+                    <option value="2">Memory Available</option>
+                    <option value="3">Memory Used</option>
+                    <option value="4">Swap Free</option>
+                  </select>
+            </div>
+            <div>
+                <input class="button-primary two column" value="Filter" type="submit" id="filter">
+            </div>
+        </div>
+        <!--
+        <table class="u-full-width">
+            <thead bgcolor="yellow">
+            <tr>
+                <td>Host</td>
+                <td>Date</td>
+                <td>Time</td>
+                <td>CPU </td>
+                <td>Memory Available</td>
+                <td>Memory Used</td>
+                <td>Swap Free</td>
+            </tr>
+            </thead>
+            {% for row in rows %}
+                <tr>
+                    <td>{{row["host"]}}</td>
+                    <td>{{row["date"]}}</td>
+                    <td>{{row["time"]}}</td>
+                    <td>{{row["cpu"]}}</td>
+                    <td>{{row["memory_avail"]}}</td>
+                    <td>{{row["memory_used"]}}</td>
+                    <td>{{row["swap_free"]}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        -->
+        <div id="chartContainer" class="two column" style="height: 400px; width: 100%;"></div>
+        <div class="two column">
+            <a class="button button-primary" href="{{ url_for('history') }}"> Back To Monitor</a>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+    <script>
+        $(document).ready(function(){
+          $('#filter').click(function(){
+            var url = "http://localhost:5000/res/"+$("#host").val()+"/"+$("#monitype").val()
+            location.href = url
+          });
+        });
+    </script>
+    <script>
+        var host_id = {{host_id}}
+        var category = {{category}}
+        $("#host > [value=" + host_id + "]").attr("selected", "true");
+        $("#monitype > [value=" + category + "]").attr("selected", "true");
+    </script>
+</body>
+</html>
