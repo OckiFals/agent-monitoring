@@ -136,7 +136,7 @@ def add_monitor():
     timestamp = datetime.datetime.now()
     timestart = (int(starthour) * 3600) + (int(startminute) * 60)
     timeend = (int(endhour) * 3600) + (int(endminute) * 60)
-    if (host == 'All'):
+    if host == 'All':
         all_host = models.Host.query.all()
         for i in range(len(all_host)):
             one_host = all_host[i]
@@ -150,7 +150,7 @@ def add_monitor():
     models.db.session.add(query)
     models.db.session.commit()
     # return all_host
-    return render_template('add_monitor.html')
+    return redirect('/res')
 
 
 @app.route('/delete_host', methods=['POST'])

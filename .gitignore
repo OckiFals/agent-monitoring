@@ -1,2 +1,4 @@
 .idea
+app/*.pyc
+flask/*.pyc
 *.pyc
