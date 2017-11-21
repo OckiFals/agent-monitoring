@@ -91,12 +91,9 @@ class Handler():
         # if c[0]=='active':
         db.commit()
         db.close()
-        print "confirm : "
-        selection = raw_input()
-        if selection == 'y':
-            self.transport.write(command, (self.host, self.port))
-            # cursor.execute('''UPDATE host SET phase = ? WHERE host = ?''', ('Off', host))
-            print "this " + command + " has been sent "
+        self.transport.write(command, (self.host, self.port))
+        # cursor.execute('''UPDATE host SET phase = ? WHERE host = ?''', ('Off', host))
+        print "this " + command + " has been sent "
 
     def postHandle(self, arg):
         print 'server post handling'
