@@ -1,3 +1,4 @@
+#! /usr/bin/env pyhton
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor, threads
 import time, psutil, os, json, socket
@@ -85,7 +86,12 @@ def ping():
         avai = "Device is up"
     else:
         avai = "Device is down"
-    status = (_type, getmac(), host, avai)
+    status = {
+        'type': _type,
+        'mac': getmac(),
+        'host': host,
+        'avai': avai
+    }
     result = json.dumps(status)
     return result
 
@@ -97,7 +103,14 @@ def getNetwork():
     pktsent = psutil.net_io_counters().packets_sent
     pktrcv = psutil.net_io_counters().packets_recv
 
-    net = (_type, getmac(), bytesent, byterecv, pktsent, pktrcv)
+    net = {
+        'type': _type,
+        'mac': getmac(),
+        'bytesent': bytesent,
+        'byterecv': byterecv,
+        'pktsent': pktsent,
+        'pktrcv': pktrcv
+    }
     result = json.dumps(net)
 
     return result
@@ -127,7 +140,14 @@ def getDisk():
     disk_free = (psutil.disk_usage('/')[2]) / 1024
     read_bytes = psutil.disk_io_counters(perdisk=False)[2] / 1024
     write_bytes = psutil.disk_io_counters(perdisk=False)[3] / 1024
-    disk = (_type, getmac(), disk_used, disk_free, read_bytes, write_bytes)
+    disk = {
+        'type': _type,
+        'mac': get_mac(),
+        'disk_used': disk_used,
+        'disk_free': disk_free,
+        'read_bytes': read_bytes,
+        'write_bytes': write_bytes
+    }
     result = json.dumps(disk)
     return result
 

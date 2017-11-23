@@ -38,32 +38,41 @@ class ServerProtocol(DatagramProtocol):
             cursor.execute(
                 '''INSERT INTO network(host,date,time,byte_sent,byte_receive,packet_sent,packet_receive)
                 VALUES (?,?,?,?,?,?,?);''', (
-                    result.get('mac'), str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")),
-                    result.get('cpu'),
-                    result.get('memory'),
-                    result.get('usedmem'), result.get('swap'))
+                    result.get('mac'),
+                    str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")),
+                    result.get('bytesent'),
+                    result.get('byterecv'),
+                    result.get('pktsent'),
+                    result.get('pktrcv')
+                )
             )
             print "network has been inserted to database"
             print "result %r " % (result)
         elif result.get('type') == 3:
-            cursor.execute('''INSERT INTO availability(host,date,time,status)
-                                            VALUES (?,?,?,?);''',
-                           (result.get('mac'), str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")),
-                            result.get('memory')))
+            cursor.execute(
+                '''INSERT INTO availability(host,date,time,status)
+                VALUES (?,?,?,?);''',
+                (result.get('mac'),
+                 str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")),
+                 result.get('avai'))
+            )
             print "this is availability"
             print "result %r " % (result)
             print type(result)
         elif result.get('type') == 4:
-            cursor.execute('''INSERT INTO disk(host,date,time,disk_used,disk_free,read_bytes,write_bytes)
-                            VALUES (?,?,?,?,?,?,?);''', (
-                result.get('mac'), str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")), result.get('cpu'), result.get('memory'),
-                result.get('usedmem'), result.get('swap')))
+            cursor.execute(
+                '''INSERT INTO disk(host,date,time,disk_used,disk_free,read_bytes,write_bytes)
+                VALUES (?,?,?,?,?,?,?);''', (
+                    result.get('mac'), str(time.strftime("%d-%m-%Y")), str(time.strftime("%H:%M:%S")),
+                    result.get('disk_used'), result.get('disk_free'),
+                    result.get('read_bytes'), result.get('write_bytes'))
+            )
             print "disk has been inserted to database"
             print "result %r " % result
 
         else:
             print "received from host %r , %s:%d" % (result.get('mac'), host, port)
-            t = (result['mac'],)  # s = (result[1],)
+            t = (result.get('mac'),)  # s = (result[1],)
             query = cursor.execute('''SELECT * FROM Host WHERE host=?''', t)
             count = len(query.fetchall())
 
