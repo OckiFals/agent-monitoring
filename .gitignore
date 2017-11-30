@@ -3,3 +3,7 @@
 app/*.pyc
 flask/*.pyc
 *.pyc
+config.sh
+agent_dev
+monit-app-iot/run
+monit-app-iot/monitor_dev
