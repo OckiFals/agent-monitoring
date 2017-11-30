@@ -44,27 +44,35 @@ class ClientProtocol(DatagramProtocol):
     def datagramReceived(self, datagram, (host, port)):
         command = json.loads(datagram)
         print 'Datagram received: ', repr(command)
-        handler = Handler(self.transport, host, port)
-        d = threads.deferToThread(handler.handleMessage, command)
-        duration = ((command[5] - command[4]) / command[3])
 
-        for i in range(duration):
-            if command[2] == 1:
-                d.addCallback(handler.sendRes)
-            elif command[2] == 2:
-                d.addCallback(handler.sendNetwork)
-                # time.sleep(command[3])
-            elif command[2] == 3:
-                d.addCallback(handler.sendPing)
-            elif command[2] == 4:
-                # for i in range(duration):
-                d.addCallback(handler.sendDisk)
+        # FIXME kalau tabel monitor kosong gak mau jalan
+        if None is not command:
+            handler = Handler(self.transport, host, port)
+            d = threads.deferToThread(handler.handleMessage, command)
+            # TODO ganti duration pakai timestamp murni -> UNIX timestamp
+            duration = ((command[5] - command[4]) / command[3])
+
+            print duration
+
+            for i in range(duration):
+                print i
+                # FIXME callback harus segera dieksekusi
+                if command[2] == 1:
+                    d.addCallback(handler.sendRes)
+                elif command[2] == 2:
+                    d.addCallback(handler.sendNetwork)
+                    # time.sleep(command[3])
+                elif command[2] == 3:
+                    d.addCallback(handler.sendPing)
+                elif command[2] == 4:
+                    # for i in range(duration):
+                    d.addCallback(handler.sendDisk)
+                    # print command[3]
+                    # time.sleep(command[3])
+                print "data sent"
+                time.sleep(command[3])
+
                 # print command[3]
-                # time.sleep(command[3])
-            print "data sent"
-            time.sleep(command[3])
-
-            # print command[3]
 
 
 def getmac():
