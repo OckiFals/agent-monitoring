@@ -163,41 +163,6 @@ def getDisk():
     return result
 
 
-class Handler():
-    def __init__(self, transport, host, port):
-        self.host = host
-        self.port = port
-        self.transport = transport
-
-    def handleMessage(self, command):
-        print 'Handler Message: ', repr(command)
-        # print command[3]
-        # return command[3]
-
-    def sendRes(self, *arg):
-        # handler = Handler()
-        # interval=handler.handleMessage(self.transport,host,port)
-        # time.sleep(10)
-        self.transport.write(getResource())
-
-    def sendNetwork(self, *arg):
-        # time.sleep(10)
-        # print type(getNetwork())
-        self.transport.write(getNetwork())
-
-    def sendPing(self, *arg):
-        # time.sleep(10)
-        self.transport.write(ping())
-
-    def sendDisk(self, *arg):
-        # time.sleep(10)
-        # print type(getDisk())
-        self.transport.write(getDisk())
-
-    def postHandle(self, arg):
-        print 'post handling'
-
-
 def main():
     protocol = ClientProtocol()
     reactor.listenUDP(0, protocol)
