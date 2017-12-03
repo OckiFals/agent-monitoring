@@ -1,8 +1,10 @@
 #! /usr/bin/env pyhton
 from twisted.internet.protocol import DatagramProtocol
-from twisted.internet import reactor, threads
+from twisted.internet import reactor
 import time, psutil, os, json, socket
 from uuid import getnode as get_mac
+from random import randint
+from datetime import datetime
 
 
 class ClientProtocol(DatagramProtocol):
@@ -47,32 +49,33 @@ class ClientProtocol(DatagramProtocol):
 
         # FIXME kalau tabel monitor kosong gak mau jalan
         if None is not command:
-            handler = Handler(self.transport, host, port)
-            d = threads.deferToThread(handler.handleMessage, command)
-            # TODO ganti duration pakai timestamp murni -> UNIX timestamp
-            duration = ((command[5] - command[4]) / command[3])
+            starttime = datetime.strptime(command[4], "%Y/%m/%d %H:%M:%S.%f")
+            endtime = datetime.strptime(command[5], "%Y/%m/%d %H:%M:%S.%f")
+            now = datetime.now()
 
-            print duration
+            if command[2] == 1:
+                callback = getResource()
+            elif command[2] == 2:
+                callback = getNetwork()
+            elif command[2] == 3:
+                callback = ping()
+            else:  # command[2] == 4
+                callback = getDisk()
 
-            for i in range(duration):
-                print i
-                # FIXME callback harus segera dieksekusi
-                if command[2] == 1:
-                    d.addCallback(handler.sendRes)
-                elif command[2] == 2:
-                    d.addCallback(handler.sendNetwork)
-                    # time.sleep(command[3])
-                elif command[2] == 3:
-                    d.addCallback(handler.sendPing)
-                elif command[2] == 4:
-                    # for i in range(duration):
-                    d.addCallback(handler.sendDisk)
-                    # print command[3]
-                    # time.sleep(command[3])
-                print "data sent"
+            while starttime < now < endtime:
+                now = datetime.now()
+                if 2 == randint(0, 5):
+                    print 'exiting for loop'
+                    break
+                self.transport.write(callback)
                 time.sleep(command[3])
-
-                # print command[3]
+            else:
+                print 'waitting command'
+                self.transport.write(json.dumps({'type': 5}))
+                time.sleep(10)
+        else:
+            self.transport.write(json.dumps({'type': 5}))
+            time.sleep(10)
 
 
 def getmac():
@@ -175,7 +178,6 @@ class Handler():
         # handler = Handler()
         # interval=handler.handleMessage(self.transport,host,port)
         # time.sleep(10)
-        # print type(getResource())
         self.transport.write(getResource())
 
     def sendNetwork(self, *arg):

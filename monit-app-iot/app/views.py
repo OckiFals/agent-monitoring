@@ -125,28 +125,23 @@ def getdisk():
 
 @app.route('/add_monitor', methods=['POST'])
 def add_monitor():
-    host = request.form['host']
+    _host = request.form['host']
     monitype = request.form['monitype']
     interval = request.form['interval']
-    starthour = request.form['starthour']
-    startminute = request.form['startminute']
-    endhour = request.form['endhour']
-    endminute = request.form['endminute']
-    phase = request.form['phase']
+    starttime = request.form['starttime'] + ':00'
+    endtime = request.form['endtime'] + ':00'
     timestamp = datetime.datetime.now()
-    timestart = (int(starthour) * 3600) + (int(startminute) * 60)
-    timeend = (int(endhour) * 3600) + (int(endminute) * 60)
-    if host == 'All':
+    if _host == 'All':
         all_host = models.Host.query.all()
         for i in range(len(all_host)):
             one_host = all_host[i]
             one_host.phase = "active"
             models.db.session.commit()
     else:
-        active_host = models.Host.query.filter_by(host=host).first()
+        active_host = models.Host.query.filter_by(host=_host).first()
         active_host.phase = "active"
         models.db.session.commit()
-    query = models.Monitor(host, monitype, interval, timestart, timeend, timestamp)
+    query = models.Monitor(_host, monitype, interval, starttime, endtime, timestamp)
     models.db.session.add(query)
     models.db.session.commit()
     # return all_host

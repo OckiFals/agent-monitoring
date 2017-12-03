@@ -69,7 +69,8 @@ class ServerProtocol(DatagramProtocol):
             )
             print "disk has been inserted to database"
             print "result %r " % result
-
+        elif result.get('type') == 5:
+            print 'agent wait for command'
         else:
             print "received from host %r , %s:%d" % (result.get('mac'), host, port)
             t = (result.get('mac'),)  # s = (result[1],)

@@ -55,8 +55,8 @@ class Monitor(db.Model):
     host = db.Column(db.String(64))
     monitype = db.Column(db.Integer)
     interval = db.Column(db.Integer)
-    start = db.Column(db.Integer)
-    end = db.Column(db.Integer)
+    start = db.Column(db.String(64))
+    end = db.Column(db.String(64))
     createdat = db.Column(db.String(64))
 
     def __init__(self, host, monitype, interval, start, end, createdat):
