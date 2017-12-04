@@ -66,16 +66,13 @@ class ClientProtocol(DatagramProtocol):
                 now = datetime.now()
                 if 2 == randint(0, 5):
                     print 'exiting for loop'
+                    break_interupt = True
                     break
+                print 'sending...'
                 self.transport.write(callback)
                 time.sleep(command[3])
-            else:
-                print 'waitting command'
-                self.transport.write(json.dumps({'type': 5}))
-                time.sleep(10)
-        else:
-            self.transport.write(json.dumps({'type': 5}))
-            time.sleep(10)
+        print 'waitting command'
+        self.transport.write(json.dumps({'type': 5}))
 
 
 def getmac():
