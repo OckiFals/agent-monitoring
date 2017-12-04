@@ -45,6 +45,7 @@ class ClientProtocol(DatagramProtocol):
         print 'client stopped'
 
     def datagramReceived(self, datagram, (host, port)):
+        # FIXME perubahan command tidak langsung terdeteksi
         command = json.loads(datagram)
         print 'Datagram received: ', repr(command)
 

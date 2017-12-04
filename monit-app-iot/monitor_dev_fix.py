@@ -103,10 +103,21 @@ class Handler():
         self.transport = transport
 
     def handleMessage(self, host):
+        # FIXME kalau tabel host kosong error
         db = sqlite3.connect("monitor.db", timeout=20)
         cursor = db.cursor()
-        row = cursor.execute('''SELECT * FROM monitor ORDER BY createdat DESC ''')
-        selection = row.fetchone()
+        # ambil data dari tabel monitor
+        row_monitor = cursor.execute('''SELECT * FROM monitor ORDER BY createdat DESC ''')
+        selection = list(row_monitor.fetchone()) or []
+
+        db.commit()
+
+        # ambil data dari tabel host
+        row_host = cursor.execute('''SELECT phase FROM Host WHERE host = ? ''', (selection[1],))
+        d = row_host.fetchone()[0]
+        print d
+        selection.append(d)
+
         # newhost=(host,)
         # active_host=cursor.execute('''SELECT phase FROM host WHERE host=?''', newhost)
         command = json.dumps(selection)
