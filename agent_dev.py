@@ -3,11 +3,12 @@ from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 import time, psutil, os, json, socket
 from uuid import getnode as get_mac
-from random import randint
 from datetime import datetime
 
 
 class ClientProtocol(DatagramProtocol):
+    counter = 0
+
     def startProtocol(self):
         print 'client started'
         host = "127.0.0.1"
@@ -47,6 +48,8 @@ class ClientProtocol(DatagramProtocol):
         command = json.loads(datagram)
         print 'Datagram received: ', repr(command)
 
+        break_interupt = False
+
         # FIXME kalau tabel monitor kosong gak mau jalan
         if None is not command:
             starttime = datetime.strptime(command[4], "%Y/%m/%d %H:%M:%S.%f")
@@ -62,9 +65,10 @@ class ClientProtocol(DatagramProtocol):
             else:  # command[2] == 4
                 callback = getDisk()
 
-            while starttime < now < endtime:
+            while starttime < now < endtime and 'active' == command[7]:
                 now = datetime.now()
-                if 2 == randint(0, 5):
+                self.counter += 1
+                if 0 == self.counter % 3:
                     print 'exiting for loop'
                     break_interupt = True
                     break
@@ -74,6 +78,10 @@ class ClientProtocol(DatagramProtocol):
         print 'waitting command'
         self.transport.write(json.dumps({'type': 5}))
 
+        if not break_interupt:
+            time.sleep(command[3])
+        else:
+            time.sleep(1)
 
 def getmac():
     mac = get_mac()
