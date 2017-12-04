@@ -18,7 +18,18 @@ def index():
 def monitor():
     selection = request.form['host']
     # host = models.Host.query.options(load_only('host'))
-    return render_template('monitor.html', host=selection)
+    return render_template('monitor.html', host=selection)\
+
+
+@app.route('/monitoring_phase', methods=['POST'])
+def monitoring_phase():
+    _host = request.form['host']
+    phase = request.form['phase']
+    host_obj = models.Host.query.filter_by(host=_host).first()
+    host_obj.phase = phase
+    models.db.session.commit()
+    # host = models.Host.query.options(load_only('host'))
+    return redirect('/')
 
 
 # return selection

@@ -26,6 +26,7 @@
                 <td>Host</td>
                 <td>Status</td>
                 <td>Accept for Monitor</td>
+                <td>Monitoring Phase</td>
                 <td>Decline</td>
             </tr>
             </thead>
@@ -41,6 +42,19 @@
                          <input type="hidden" value="{{row['host']}}" name="host">
                      </form>
                  </td>
+
+                  <td>
+                     <form action="{{ url_for('monitoring_phase') }}" method="post">
+                         <button type="submit" class="button">
+                             {{ 'Stop' if row['phase'] == 'active' else 'Start' }}
+                         </button>
+                         <input type="hidden" value="{{row['host']}}" name="host">
+                         <input type="hidden"
+                                value="{{ 'stop' if row['phase'] == 'active' else 'active' }}"
+                                name="phase">
+                     </form>
+                 </td>
+
                  <td>
                      <form action="{{ url_for('delete_host') }}" method="post">
                          <button type="submit" class="button">Delete Host</button>
