@@ -128,8 +128,8 @@ def add_monitor():
     _host = request.form['host']
     monitype = request.form['monitype']
     interval = request.form['interval']
-    starttime = request.form['starttime'] + ':00'
-    endtime = request.form['endtime'] + ':00'
+    starttime = request.form['starttime'] + ':00.00'
+    endtime = request.form['endtime'] + ':00.00'
     timestamp = datetime.datetime.now()
     if _host == 'All':
         all_host = models.Host.query.all()
