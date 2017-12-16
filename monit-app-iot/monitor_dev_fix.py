@@ -95,8 +95,8 @@ class ServerProtocol(DatagramProtocol):
                 print "insert"
             else:
                 cursor.execute(
-                    '''UPDATE host SET status = ? WHERE Host = ?;''',
-                    (result['status'], result['hostname'])
+                    '''UPDATE Host SET status = ?, phase = ? WHERE hostname = ?;''',
+                    (result['status'], result['phase'], result['hostname'])
                 )
                 print "update"
             print "host has been recorded"
