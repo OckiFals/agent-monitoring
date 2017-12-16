@@ -38,14 +38,17 @@
 
                  <td>
                      <form action="{{ url_for('monitor') }}" method="post">
-                         <button type="submit" class="button">Monitor</button>
+                         <button type="submit" class="button" {{ 'disabled' if row['status'] == 'Down' }}>
+                             Monitor
+                         </button>
                          <input type="hidden" value="{{row['host']}}" name="host">
                      </form>
                  </td>
 
                   <td>
                      <form action="{{ url_for('monitoring_phase') }}" method="post">
-                         <button type="submit" class="button">
+                         <button type="submit" class="button"
+                                 {{ 'disabled' if row['status'] == 'Down' }}>
                              {{ 'Stop' if row['phase'] == 'active' else 'Start' }}
                          </button>
                          <input type="hidden" value="{{row['host']}}" name="host">
