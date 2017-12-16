@@ -13,6 +13,16 @@ class ServerProtocol(DatagramProtocol):
 
     def startProtocol(self):
         print 'server started'
+        db = sqlite3.connect("monitor.db")
+        cursor = db.cursor()
+        query = cursor.execute('''SELECT * FROM Host''')
+        for host in query.fetchall():
+            cursor.execute(
+                '''UPDATE host SET status = ?, phase = ? WHERE Host = ?;''',
+                ('Down', 'stopped', host[2])
+            )
+            db.commit()
+        db.close()
 
     def stopProtocol(self):
         print 'server stoped'
