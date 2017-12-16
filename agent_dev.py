@@ -141,7 +141,7 @@ def getResource():
     swap = psutil.swap_memory().free
     res = {
         'type': _type,
-        'mac': get_mac(),
+        'mac': getmac(),
         'cpu': cpu,
         'memory': memory,
         'usedmem': usedmem,
@@ -159,7 +159,7 @@ def getDisk():
     write_bytes = psutil.disk_io_counters(perdisk=False)[3] / 1024
     disk = {
         'type': _type,
-        'mac': get_mac(),
+        'mac': getmac(),
         'disk_used': disk_used,
         'disk_free': disk_free,
         'read_bytes': read_bytes,
