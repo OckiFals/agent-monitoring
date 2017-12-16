@@ -24,7 +24,7 @@ class ClientProtocol(DatagramProtocol):
             'hostname': hostname,
             'mac': mac,
             'status': avai,
-            'phase': 'Off'
+            'phase': 'active'
         }
         result = json.dumps(data)
         self.transport.write(result)
