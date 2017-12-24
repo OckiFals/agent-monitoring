@@ -1,4 +1,7 @@
 #! /usr/bin/env pyhton
+import sys
+
+from twisted.internet.defer import Deferred
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 import time, psutil, os, json, socket
@@ -8,6 +11,10 @@ from datetime import datetime
 
 class ClientProtocol(DatagramProtocol):
     counter = 0
+    ACTION = {
+        'SENDING': 1,
+        'WAITING': 2
+    }
 
     def startProtocol(self):
         print 'client started'
@@ -35,7 +42,8 @@ class ClientProtocol(DatagramProtocol):
         data = {
             'hostname': hostname,
             'mac': mac,
-            'status': "Down"
+            'status': 'Down',
+            'phase': 'stopped'
         }
         result = json.dumps(data)
         self.transport.write(result)
@@ -66,23 +74,18 @@ class ClientProtocol(DatagramProtocol):
             else:  # command[2] == 4
                 callback = getDisk()
 
-            while starttime < now < endtime and 'active' == command[7]:
+            if starttime < now < endtime and 'active' == command[7]:
                 now = datetime.now()
-                self.counter += 1
-                if 0 == self.counter % 3:
-                    print 'exiting for loop'
-                    break_interupt = True
-                    break
-                print 'sending...'
-                self.transport.write(callback)
-                time.sleep(command[3])
-        print 'waitting command'
-        self.transport.write(json.dumps({'type': 5}))
+                reactor.callLater(command[3], self.transporthandler, (self.ACTION['SENDING'], callback))
+                return
+        reactor.callLater(command[3]/2, self.transporthandler, (self.ACTION['WAITING'], json.dumps({'type': 5})))
 
-        if not break_interupt:
-            time.sleep(command[3])
-        else:
-            time.sleep(1)
+    def transporthandler(self, args):
+        if self.ACTION['SENDING'] == args[0]:
+            print 'sending...'
+        elif self.ACTION['WAITING'] == args[0]:
+            print 'waitting command'
+        self.transport.write(args[1])
 
 def getmac():
     mac = get_mac()
