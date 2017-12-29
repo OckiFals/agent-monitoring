@@ -28,8 +28,9 @@ class ServerProtocol(DatagramProtocol):
         print 'server stoped'
 
     def datagramReceived(self, data, (host, port)):
-        handler = Handler(self.transport, host, port)
         result = json.loads(data)
+        mac = result.get('mac')
+        handler = Handler(self.transport, host, port, mac)
         args = result.get('type') if result.get('type') else result.get('hostname')
         d = threads.deferToThread(handler.handleMessage, args)
         db = sqlite3.connect("monitor.db")
@@ -107,17 +108,21 @@ class ServerProtocol(DatagramProtocol):
 
 
 class Handler():
-    def __init__(self, transport, host, port):
+    def __init__(self, transport, host, port, mac):
         self.host = host
         self.port = port
+        self.mac = mac
         self.transport = transport
 
     def handleMessage(self, host):
+        print self.mac
         # FIXME kalau tabel host kosong error
         db = sqlite3.connect("monitor.db", timeout=20)
         cursor = db.cursor()
         # ambil data dari tabel monitor
-        row_monitor = cursor.execute('''SELECT * FROM monitor ORDER BY createdat DESC ''')
+        row_monitor = cursor.execute(
+            '''SELECT * FROM monitor WHERE host=? ORDER BY createdat DESC ''', (self.mac,)
+        )
         selection = list(row_monitor.fetchone()) or []
 
         db.commit()

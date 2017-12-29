@@ -75,10 +75,12 @@ class ClientProtocol(DatagramProtocol):
                 callback = getDisk()
 
             if starttime < now < endtime and 'active' == command[7]:
-                now = datetime.now()
                 reactor.callLater(command[3], self.transporthandler, (self.ACTION['SENDING'], callback))
                 return
-        reactor.callLater(command[3]/2, self.transporthandler, (self.ACTION['WAITING'], json.dumps({'type': 5})))
+        data = json.dumps({'mac': getmac(), 'type': 5})
+        reactor.callLater(
+            command[3]/2, self.transporthandler, (self.ACTION['WAITING'], data)
+        )
 
     def transporthandler(self, args):
         if self.ACTION['SENDING'] == args[0]:
@@ -86,6 +88,7 @@ class ClientProtocol(DatagramProtocol):
         elif self.ACTION['WAITING'] == args[0]:
             print 'waitting command'
         self.transport.write(args[1])
+
 
 def getmac():
     mac = get_mac()
