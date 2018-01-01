@@ -1,12 +1,11 @@
 #! /usr/bin/env pyhton
-import sys
-
-from twisted.internet.defer import Deferred
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
-import time, psutil, os, json, socket
+import psutil, os, json, socket
 from uuid import getnode as get_mac
 from datetime import datetime
+
+MASTER_HOST = '127.0.0.1'
 
 
 class ClientProtocol(DatagramProtocol):
@@ -18,11 +17,10 @@ class ClientProtocol(DatagramProtocol):
 
     def startProtocol(self):
         print 'client started'
-        host = "127.0.0.1"
-        self.transport.connect('127.0.0.1', 9964)
+        self.transport.connect(MASTER_HOST, 9964)
         mac = getmac()
         hostname = gethostname()
-        response = os.system("ping -c 1 " + host)
+        response = os.system("ping -c 1 " + MASTER_HOST)
         if response == 0:
             avai = "Up"
         else:
@@ -56,8 +54,6 @@ class ClientProtocol(DatagramProtocol):
         # FIXME perubahan command tidak langsung terdeteksi
         command = json.loads(datagram)
         print 'Datagram received: ', repr(command)
-
-        break_interupt = False
 
         # FIXME kalau tabel monitor kosong gak mau jalan
         if None is not command:
@@ -103,8 +99,7 @@ def gethostname():
 
 def ping():
     _type = 3
-    host = "127.0.0.1"
-    response = os.system("ping -c 1 " + host)
+    response = os.system("ping -c 1 " + MASTER_HOST)
     if response == 0:
         avai = "Device is up"
     else:
@@ -112,7 +107,7 @@ def ping():
     status = {
         'type': _type,
         'mac': getmac(),
-        'host': host,
+        'host': MASTER_HOST,
         'avai': avai
     }
     result = json.dumps(status)
