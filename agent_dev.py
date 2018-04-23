@@ -1,18 +1,26 @@
 #! /usr/bin/env pyhton
 from twisted.internet.protocol import DatagramProtocol
-from twisted.internet import reactor, threads
-import time, psutil, os, json, socket
+from twisted.internet import reactor
+import psutil, os, json, socket
 from uuid import getnode as get_mac
+from datetime import datetime
+
+MASTER_HOST = '127.0.0.1'
 
 
 class ClientProtocol(DatagramProtocol):
+    counter = 0
+    ACTION = {
+        'SENDING': 1,
+        'WAITING': 2
+    }
+
     def startProtocol(self):
         print 'client started'
-        host = "127.0.0.1"
-        self.transport.connect('127.0.0.1', 9964)
+        self.transport.connect(MASTER_HOST, 9964)
         mac = getmac()
         hostname = gethostname()
-        response = os.system("ping -c 1 " + host)
+        response = os.system("ping -c 1 " + MASTER_HOST)
         if response == 0:
             avai = "Up"
         else:
@@ -21,7 +29,7 @@ class ClientProtocol(DatagramProtocol):
             'hostname': hostname,
             'mac': mac,
             'status': avai,
-            'phase': 'Off'
+            'phase': 'active'
         }
         result = json.dumps(data)
         self.transport.write(result)
@@ -32,7 +40,8 @@ class ClientProtocol(DatagramProtocol):
         data = {
             'hostname': hostname,
             'mac': mac,
-            'status': "Down"
+            'status': 'Down',
+            'phase': 'stopped'
         }
         result = json.dumps(data)
         self.transport.write(result)
@@ -42,37 +51,39 @@ class ClientProtocol(DatagramProtocol):
         print 'client stopped'
 
     def datagramReceived(self, datagram, (host, port)):
+        # FIXME perubahan command tidak langsung terdeteksi
         command = json.loads(datagram)
         print 'Datagram received: ', repr(command)
 
         # FIXME kalau tabel monitor kosong gak mau jalan
         if None is not command:
-            handler = Handler(self.transport, host, port)
-            d = threads.deferToThread(handler.handleMessage, command)
-            # TODO ganti duration pakai timestamp murni -> UNIX timestamp
-            duration = ((command[5] - command[4]) / command[3])
+            starttime = datetime.strptime(command[4], "%Y/%m/%d %H:%M:%S.%f")
+            endtime = datetime.strptime(command[5], "%Y/%m/%d %H:%M:%S.%f")
+            now = datetime.now()
 
-            print duration
+            if command[2] == 1:
+                callback = getResource()
+            elif command[2] == 2:
+                callback = getNetwork()
+            elif command[2] == 3:
+                callback = ping()
+            else:  # command[2] == 4
+                callback = getDisk()
 
-            for i in range(duration):
-                print i
-                # FIXME callback harus segera dieksekusi
-                if command[2] == 1:
-                    d.addCallback(handler.sendRes)
-                elif command[2] == 2:
-                    d.addCallback(handler.sendNetwork)
-                    # time.sleep(command[3])
-                elif command[2] == 3:
-                    d.addCallback(handler.sendPing)
-                elif command[2] == 4:
-                    # for i in range(duration):
-                    d.addCallback(handler.sendDisk)
-                    # print command[3]
-                    # time.sleep(command[3])
-                print "data sent"
-                time.sleep(command[3])
+            if starttime < now < endtime and 'active' == command[7]:
+                reactor.callLater(command[3], self.transporthandler, (self.ACTION['SENDING'], callback))
+                return
+        data = json.dumps({'mac': getmac(), 'type': 5})
+        reactor.callLater(
+            command[3]/2, self.transporthandler, (self.ACTION['WAITING'], data)
+        )
 
-                # print command[3]
+    def transporthandler(self, args):
+        if self.ACTION['SENDING'] == args[0]:
+            print 'sending...'
+        elif self.ACTION['WAITING'] == args[0]:
+            print 'waitting command'
+        self.transport.write(args[1])
 
 
 def getmac():
@@ -88,8 +99,7 @@ def gethostname():
 
 def ping():
     _type = 3
-    host = "127.0.0.1"
-    response = os.system("ping -c 1 " + host)
+    response = os.system("ping -c 1 " + MASTER_HOST)
     if response == 0:
         avai = "Device is up"
     else:
@@ -97,7 +107,7 @@ def ping():
     status = {
         'type': _type,
         'mac': getmac(),
-        'host': host,
+        'host': MASTER_HOST,
         'avai': avai
     }
     result = json.dumps(status)
@@ -132,7 +142,7 @@ def getResource():
     swap = psutil.swap_memory().free
     res = {
         'type': _type,
-        'mac': get_mac(),
+        'mac': getmac(),
         'cpu': cpu,
         'memory': memory,
         'usedmem': usedmem,
@@ -150,7 +160,7 @@ def getDisk():
     write_bytes = psutil.disk_io_counters(perdisk=False)[3] / 1024
     disk = {
         'type': _type,
-        'mac': get_mac(),
+        'mac': getmac(),
         'disk_used': disk_used,
         'disk_free': disk_free,
         'read_bytes': read_bytes,
@@ -158,42 +168,6 @@ def getDisk():
     }
     result = json.dumps(disk)
     return result
-
-
-class Handler():
-    def __init__(self, transport, host, port):
-        self.host = host
-        self.port = port
-        self.transport = transport
-
-    def handleMessage(self, command):
-        print 'Handler Message: ', repr(command)
-        # print command[3]
-        # return command[3]
-
-    def sendRes(self, *arg):
-        # handler = Handler()
-        # interval=handler.handleMessage(self.transport,host,port)
-        # time.sleep(10)
-        # print type(getResource())
-        self.transport.write(getResource())
-
-    def sendNetwork(self, *arg):
-        # time.sleep(10)
-        # print type(getNetwork())
-        self.transport.write(getNetwork())
-
-    def sendPing(self, *arg):
-        # time.sleep(10)
-        self.transport.write(ping())
-
-    def sendDisk(self, *arg):
-        # time.sleep(10)
-        # print type(getDisk())
-        self.transport.write(getDisk())
-
-    def postHandle(self, arg):
-        print 'post handling'
 
 
 def main():

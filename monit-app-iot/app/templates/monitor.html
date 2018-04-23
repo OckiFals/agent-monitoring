@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="static/css/normalize.css">
-    <link rel="stylesheet" href="static/css/skeleton.css">
-    <meta charset="UTF-8">
     <title>Monitor Device</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/normalize.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/skeleton.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.datetimepicker.min.css') }}">
+    <meta charset="UTF-8">
 </head>
 <body>
-    <div class="container">
-        <ul>
-      <li><a href="{{ url_for('index') }}">Home</a></li>
-      <li><a href="{{ url_for('history') }}">History</a></li>
+<div class="container">
+    <ul>
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('history') }}">History</a></li>
     </ul>
 
     <h3>Add Monitoring</h3>
@@ -22,53 +23,59 @@
               <option value="{{ o.host}}">{{ o.host }}</option>
               {% endfor %}
             </select>-->
-            <input class="u-full-width" id="host" type="text" name="host" value="{{host}}" readonly>
+            <input class="u-full-width" id="host" type="text" name="host" value="{{ host }}" readonly>
 
         </div>
         <div>
             <label for="monitype">Monitoring Category</label>
-              <select class="u-full-width" id="monitype" name="monitype">
+            <select class="u-full-width" id="monitype" name="monitype">
                 <option value="1">Resource</option>
                 <option value="2">Network</option>
                 <option value="3">Availability</option>
-                  <option value="4">Disk</option>
-              </select>
+                <option value="4">Disk</option>
+            </select>
         </div>
         <div>
-          <label for="interval">Monitoring Interval(s)</label>
-          <input class="u-full-width" placeholder="10 s" id="interval" type="text" name="interval">
+            <label for="interval">Monitoring Interval(s)</label>
+            <input class="u-full-width" placeholder="10 s" id="interval" type="text" name="interval">
         </div>
         <div>
-          <label class="ten column">Start Time</label>
+            <label for="starttime" class="ten column">Start Time</label>
             <div>
-                <input type="text" class="one column" placeholder="10" id="starthour" name="starthour">
+                <input type="text" id="starttime" name="starttime">
             </div>
-            <div>
-                <span class="one column" align="center">:</span>
-            </div>
-            <div>
-                <input type="text" class="one column" placeholder="00" id="startminute" name="startminute">
-            </div>
+{#            <div>#}
+{#                <span class="one column" align="center">:</span>#}
+{#            </div>#}
+{#            <div>#}
+{#                <input type="text" class="one column" placeholder="00" id="startminute" name="startminute">#}
+{#            </div>#}
         </div>
         <div>
-          <label class="two column">End Time</label>
+            <label for="endtime" class="two column">End Time</label>
             <div>
-                <input type="text"  class="one column" placeholder="10" id="endhour" name="endhour">
+                <input type="text" id="endtime" name="endtime">
             </div>
-            <div>
-                <span class="one column" align="center">:</span>
-            </div>
-            <div>
-                <input type="text" class="one column" placeholder="00"  id="endminute" name="endminute">
-            </div>
+{#            <div>#}
+{#                <span class="one column" align="center">:</span>#}
+{#            </div>#}
+{#            <div>#}
+{#                <input type="text" class="one column" placeholder="00" id="endminute" name="endminute">#}
+{#            </div>#}
             <input type="hidden" value="active" name="phase">
         </div>
         <div>
             <input class="button-primary two column" value="Submit" type="submit">
         </div>
-
-
     </form>
-    </div>
+</div>
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.datetimepicker.full.min.js') }}"></script>
+<script type="text/javascript">
+    $(function () {
+        $('#starttime').datetimepicker({mask: true});
+        $('#endtime').datetimepicker({mask: true});
+    });
+</script>
 </body>
 </html>
